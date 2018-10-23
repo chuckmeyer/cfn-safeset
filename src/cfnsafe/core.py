@@ -14,123 +14,129 @@
   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
-from boto3 import client
-from botocore.exceptions import ClientError, ValidationError
+from __future__ import print_function
 import logging
 import argparse
-import yaml
 import sys
-import os 
+import os
 import pkg_resources
+from boto3 import client
+from botocore.exceptions import ClientError
+import yaml
 
 LOGGER = logging.getLogger('cfnsafe')
 
 
 def init_logger(use_debug):
-  handler = logging.StreamHandler()
-  formatter = logging.Formatter(
-#    '%(asctime)s %(levelname)-8s %(message)s')
-    '%(levelname)-8s %(message)s')
-  handler.setFormatter(formatter)
-  LOGGER.addHandler(handler)
-  if use_debug:
-    LOGGER.setLevel(logging.DEBUG)
+    """ Set log level and format """
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        #    '%(asctime)s %(levelname)-8s %(message)s')
+        '%(levelname)-8s %(message)s')
+    handler.setFormatter(formatter)
+    LOGGER.addHandler(handler)
+    if use_debug:
+        LOGGER.setLevel(logging.DEBUG)
 
 
 def init_config(config_file):
-  LOGGER.debug('Loading config from file: %s' % config_file)
-  filename = pkg_resources.resource_filename(
-      __name__,
-      config_file
-  )
+    """ Load resource data """
+    LOGGER.debug('Loading config from file: %s', config_file)
+    filename = pkg_resources.resource_filename(
+        __name__,
+        config_file
+    )
 
-  with open(filename) as ymlfile:
-    cfg = yaml.load(ymlfile)
-  return(cfg)
+    with open(filename) as ymlfile:
+        cfg = yaml.load(ymlfile)
+    return cfg
 
 
 def create_parser():
-  '''Do first round of parsing parameters to set options'''
-  parser = argparse.ArgumentParser(description='CloudFormation ChangSet Arbiter')
+    """ Set up command line arguements """
+    parser = argparse.ArgumentParser(
+        description='CloudFormation ChangSet Arbiter')
 
-  standard = parser.add_argument_group('Standard')
-  advanced = parser.add_argument_group('Advanced / Debugging')
+    standard = parser.add_argument_group('Standard')
+    advanced = parser.add_argument_group('Advanced / Debugging')
 
-  standard.add_argument(
-      '-c', '--changeset', metavar='CHANGESET',
-      help='The CloudFormation change set to be evaluated')
-  standard.add_argument(
-      '-s', '--stack', metavar='STACKNAME',
-      help='The stack name associated with this change set')
-  standard.add_argument(
-      '-r', '--region', metavar='REGION', default='us-east-1',
-       help='The region where this change set exists')
-  advanced.add_argument(
-      '-d', '--debug', help='Enable debug logging', action='store_true'),
-  advanced.add_argument(
-      '-l', '--list', help='List stateful resources', action='store_true'
-  )
-  return parser
+    standard.add_argument(
+        '-c', '--changeset', metavar='CHANGESET',
+        help='The CloudFormation change set to be evaluated')
+    standard.add_argument(
+        '-s', '--stack', metavar='STACKNAME',
+        help='The stack name associated with this change set')
+    standard.add_argument(
+        '-r', '--region', metavar='REGION', default='us-east-1',
+        help='The region where this change set exists')
+    advanced.add_argument(
+        '-d', '--debug', help='Enable debug logging', action='store_true')
+    advanced.add_argument(
+        '-l', '--list', help='List stateful resources', action='store_true'
+    )
+    return parser
 
 
 def get_args():
-  parser = create_parser()
-  args = parser.parse_args()
-  if args.list:
-    return(args)
-  if not args.changeset:
-    LOGGER.error('%s: You must specify a valid change set and stack name (-c/-s)' %
-                 os.path.basename(sys.argv[0]))
-    sys.exit(1)
-  if not args.stack:
-    LOGGER.error('%s: You must specify a valid change set and stack name (-c/-s)' %
-                 os.path.basename(sys.argv[0]))
-    sys.exit(1)
-  return(args)
+    """ Do first round of parsing parameters to set options """
+    parser = create_parser()
+    args = parser.parse_args()
+    if args.list:
+        return args
+    if not args.changeset:
+        LOGGER.error('%s: You must specify a valid change set and stack name (-c/-s)',
+                     os.path.basename(sys.argv[0]))
+        sys.exit(1)
+    if not args.stack:
+        LOGGER.error('%s: You must specify a valid change set and stack name (-c/-s)',
+                     os.path.basename(sys.argv[0]))
+        sys.exit(1)
+    return args
 
 
-def get_change_set(change_set,stack,region): 
-  LOGGER.debug('Retrieving change set %s for stack %s in region %s',change_set,stack,region)
-  try:
-    cf_client = client('cloudformation', region_name=region)
-    response = cf_client.describe_change_set(
-        ChangeSetName=change_set,
-        StackName=stack
-    )
-    LOGGER.debug(response['Changes'])
-    return(response['Changes'])
+def get_change_set(change_set, stack, region):
+    """ Retrieve ChangeSet data via API """
+    LOGGER.debug('Retrieving change set %s for stack %s in region %s',
+                 change_set, stack, region)
+    try:
+        cf_client = client('cloudformation', region_name=region)
+        response = cf_client.describe_change_set(
+            ChangeSetName=change_set,
+            StackName=stack
+        )
+        LOGGER.debug(response['Changes'])
+        return response['Changes']
 
-  except cf_client.exceptions.ChangeSetNotFoundException as e:
-    LOGGER.error('Change set %s not found for stack %s in region %s' %
-                 (change_set, stack, region))
-    sys.exit(1)
-  except ClientError as e:
-    if e.response['Error']['Code'] == 'ValidationError':
-      LOGGER.error('Cannot retrieve stack %s in region %s' %
-                  (stack, region))
-    else:
-      LOGGER.error('Unexpected error: %s' % e)
-    sys.exit(1)
+    except cf_client.exceptions.ChangeSetNotFoundException:
+        LOGGER.error('Change set %s not found for stack %s in region %s',
+                     change_set, stack, region)
+        sys.exit(1)
+    except ClientError as err:
+        if err.response['Error']['Code'] == 'ValidationError':
+            LOGGER.error('Cannot retrieve stack %s in region %s',
+                         stack, region)
+        else:
+            LOGGER.error('Unexpected error: %s', err)
+        sys.exit(1)
 
 
 def show_stateful_resources(stateful_resources):
-  print('List of stateful resources:')
-  for resource in stateful_resources:
-    print(' * %s' % resource)
+    """ List stateful resources defined in resource data """
+    print('List of stateful resources:')
+    for resource in stateful_resources:
+        print(' * %s' % resource)
 
 
 def is_stateful_replace(change, stateful_resources):
-  if change['Replacement'] == 'True' and change['ResourceType'] in stateful_resources:
-    return(True)
-  else:
-    return(False)
+    """ Boolean check if current change references a stateful resource """
+    return change['Replacement'] == 'True' and change['ResourceType'] in stateful_resources
 
 
-def list_stateful_replace_properties(change):
-  property_list = set()
-  for detail in change['Details']:
-    if detail['Target']['Attribute'] == 'Properties':
-      if detail['Target']['RequiresRecreation'] != 'Never':
-        property_list.add(detail['Target']['Name'])
-  return(property_list)
-
+def stateful_replace_properties(change):
+    """ List of property changes that triggered replace action """
+    property_list = set()
+    for detail in change['Details']:
+        if detail['Target']['Attribute'] == 'Properties':
+            if detail['Target']['RequiresRecreation'] != 'Never':
+                property_list.add(detail['Target']['Name'])
+    return property_list

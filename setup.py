@@ -49,7 +49,7 @@ setup(
     ]},
     packages=find_packages('src'),
     zip_safe=False,
-    install_requires=[],
+    install_requires=['boto3', 'botocore', 'pyyaml'],
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
     entry_points={
         'console_scripts': [
