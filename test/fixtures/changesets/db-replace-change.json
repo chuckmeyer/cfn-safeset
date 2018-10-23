@@ -1,0 +1,116 @@
+{
+    "ChangeSetName": "db-replace-change",
+    "ChangeSetId": "arn:aws:cloudformation:us-east-2:225704381548:changeSet/db-replace-change/c050edb8-9a64-4f59-9aae-80912c2fceef",
+    "StackId": "arn:aws:cloudformation:us-east-2:225704381548:stack/clusterTest/a7cc2750-d612-11e8-8684-060ae44bf6ec",
+    "StackName": "clusterTest",
+    "Parameters": [
+        {
+            "ParameterKey": "DatabaseMasterPassword",
+            "ParameterValue": "****"
+        },
+        {
+            "ParameterKey": "DatabaseName",
+            "ParameterValue": "clusterDB"
+        },
+        {
+            "ParameterKey": "DatabaseMasterUsername",
+            "ParameterValue": "****"
+        }
+    ],
+    "CreationTime": "2018-10-22T17:09:29.460Z",
+    "ExecutionStatus": "AVAILABLE",
+    "Status": "CREATE_COMPLETE",
+    "NotificationARNs": [],
+    "RollbackConfiguration": {
+        "RollbackTriggers": []
+    },
+    "Capabilities": [],
+    "Changes": [
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Modify",
+                "LogicalResourceId": "DBCluster",
+                "PhysicalResourceId": "clustertest-dbcluster-3b6d2jhaor0i",
+                "ResourceType": "AWS::RDS::DBCluster",
+                "Replacement": "True",
+                "Scope": [
+                    "Properties",
+                    "Tags"
+                ],
+                "Details": [
+                    {
+                        "Target": {
+                            "Attribute": "Properties",
+                            "Name": "VpcSecurityGroupIds",
+                            "RequiresRecreation": "Never"
+                        },
+                        "Evaluation": "Static",
+                        "ChangeSource": "ResourceAttribute",
+                        "CausingEntity": "DBClusterSG.GroupId"
+                    },
+                    {
+                        "Target": {
+                            "Attribute": "Properties",
+                            "Name": "DatabaseName",
+                            "RequiresRecreation": "Always"
+                        },
+                        "Evaluation": "Dynamic",
+                        "ChangeSource": "DirectModification"
+                    },
+                    {
+                        "Target": {
+                            "Attribute": "Tags",
+                            "RequiresRecreation": "Never"
+                        },
+                        "Evaluation": "Dynamic",
+                        "ChangeSource": "DirectModification"
+                    },
+                    {
+                        "Target": {
+                            "Attribute": "Tags",
+                            "RequiresRecreation": "Never"
+                        },
+                        "Evaluation": "Static",
+                        "ChangeSource": "ParameterReference",
+                        "CausingEntity": "DatabaseName"
+                    },
+                    {
+                        "Target": {
+                            "Attribute": "Properties",
+                            "Name": "DatabaseName",
+                            "RequiresRecreation": "Always"
+                        },
+                        "Evaluation": "Static",
+                        "ChangeSource": "ParameterReference",
+                        "CausingEntity": "DatabaseName"
+                    }
+                ]
+            }
+        },
+        {
+            "Type": "Resource",
+            "ResourceChange": {
+                "Action": "Modify",
+                "LogicalResourceId": "DBClusterSG",
+                "PhysicalResourceId": "clusterTest-DBClusterSG-138BVOLYIO3VE",
+                "ResourceType": "AWS::EC2::SecurityGroup",
+                "Replacement": "True",
+                "Scope": [
+                    "Properties"
+                ],
+                "Details": [
+                    {
+                        "Target": {
+                            "Attribute": "Properties",
+                            "Name": "GroupDescription",
+                            "RequiresRecreation": "Always"
+                        },
+                        "Evaluation": "Static",
+                        "ChangeSource": "DirectModification"
+                    }
+                ]
+            }
+        }
+    ]
+}

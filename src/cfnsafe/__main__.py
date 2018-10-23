@@ -24,9 +24,7 @@ CONFIG_FILE = '/data/stateful-resources.yaml'
 
 def main():
     """Main function"""
-    stateful_replace = False
     args = cfnsafe.core.get_args()
-    cfnsafe.core.init_logger(args.debug)
     config = cfnsafe.core.init_config(CONFIG_FILE)
     monitored_change_types = config['ChangeTypes']
     LOGGER.debug('Monitored change types from config: %s',
@@ -36,29 +34,12 @@ def main():
     if args.list:
         cfnsafe.core.show_stateful_resources(stateful_resources)
         return 0
-    changes = cfnsafe.core.get_change_set(
-        args.changeset, args.stack, args.region)
-    for change in changes:
-        if change['Type'] in monitored_change_types:
-            LOGGER.debug('Monitored resource type: %s', change['Type'])
-            if cfnsafe.core.is_stateful_replace(
-                    change[monitored_change_types[change['Type']]],
-                    stateful_resources
-            ):
-                properties = cfnsafe.core.stateful_replace_properties(
-                    change[monitored_change_types[change['Type']]])
-                LOGGER.warning(
-                    'Replace required for stateful resource %s (%s)'
-                    'due to changes to these properties: %s',
-                    change['ResourceChange']['LogicalResourceId'],
-                    change['ResourceChange']['ResourceType'],
-                    list(properties))
-                stateful_replace = True
-            else:
-                LOGGER.info('Non-stateful resource skipped: %s (%s)',
-                            change['ResourceChange']['LogicalResourceId'],
-                            change['ResourceChange']['ResourceType'])
-    if stateful_replace:
+    if args.file:
+        changes = cfnsafe.core.load_cs_file(args.file)
+    else:
+        changes = cfnsafe.core.get_change_set(
+            args.changeset, args.stack, args.region)
+    if cfnsafe.core.detect_stateful_replace(changes, monitored_change_types, stateful_resources):
         return 2
     return 0
 

@@ -7,4 +7,5 @@ StatefulResources:
   - AWS::RDS::DBInstance
   - AWS::DynamoDB::Table
   - AWS::Cognito::UserPool
-  
+  - AWS::ECS::Cluster
+  - AWS::EC2::Instance  
