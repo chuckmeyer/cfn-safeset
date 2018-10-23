@@ -1,0 +1,10 @@
+# Change Types and Stateful Resources monitored by cfn-safe
+ChangeTypes:
+    'Resource' : 'ResourceChange'
+
+StatefulResources:
+  - AWS::RDS::DBCluster
+  - AWS::RDS::DBInstance
+  - AWS::DynamoDB::Table
+  - AWS::Cognito::UserPool
+  
