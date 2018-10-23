@@ -1,2 +1,1 @@
-# cfn-safe
-Scan CloudFormation ChangeSets for replacement actions on stateful resources
+# cfn-safe -- Validate CloudFormation ChangeSets for replacement operations on stateful resources
