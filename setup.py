@@ -26,14 +26,14 @@ def get_version(filename):
     return re.search(r"__version__ = ['\"]([^'\"]+)['\"]", contents).group(1)
 
 
-version = get_version('src/cfnsafe/version.py')
+version = get_version('src/cfnsafeset/version.py')
 
 
 with open('README.md') as f:
     readme = f.read()
 
 setup(
-    name='cfn-safe',
+    name='cfn-safeset',
     version=version,
     description=('checks cloudformation change sets for replacement of \
         stateful resources'),
@@ -42,9 +42,9 @@ setup(
     keywords='aws',
     author='cmmeyer',
     author_email='cmmeyer@amazon.com',
-    url='https://github.com/cmmeyer/cfn-safe',
+    url='https://github.com/cmmeyer/cfn-safeset',
     package_dir={'': 'src'},
-    package_data={'cfnsafe': [
+    package_data={'cfnsafeset': [
         'data/stateful-resources.yaml'
     ]},
     packages=find_packages('src'),
@@ -53,7 +53,7 @@ setup(
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
     entry_points={
         'console_scripts': [
-            'cfn-safe = cfnsafe.__main__:main'
+            'cfn-safeset = cfnsafeset.__main__:main'
         ]
     },
     license='MIT no attribution',

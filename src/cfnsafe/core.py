@@ -24,9 +24,9 @@ import pkg_resources
 from boto3 import client
 from botocore.exceptions import ClientError
 import yaml
-from cfnsafe.version import __version__
+from cfnsafeset.version import __version__
 
-LOGGER = logging.getLogger('cfnsafe')
+LOGGER = logging.getLogger('cfnsafeset')
 
 
 def init_logger(use_debug):
@@ -82,7 +82,7 @@ def create_parser():
         '-r', '--region', metavar='REGION', default='us-east-1',
         help='The region where this change set exists')
     standard.add_argument(
-        '-v', '--version', help='Version of cfn-safe', action='version',
+        '-v', '--version', help='Version of cfn-safeset', action='version',
         version='%(prog)s {version}'.format(version=__version__))
     advanced.add_argument(
         '-d', '--debug', help='Enable debug logging', action='store_true')

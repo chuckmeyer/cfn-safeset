@@ -16,30 +16,30 @@
 """
 import logging
 import sys
-import cfnsafe.core
+import cfnsafeset.core
 
-LOGGER = logging.getLogger('cfnsafe')
+LOGGER = logging.getLogger('cfnsafeset')
 CONFIG_FILE = '/data/stateful-resources.yaml'
 
 
 def main():
     """Main function"""
-    args = cfnsafe.core.get_args()
-    config = cfnsafe.core.init_config(CONFIG_FILE)
+    args = cfnsafeset.core.get_args()
+    config = cfnsafeset.core.init_config(CONFIG_FILE)
     monitored_change_types = config['ChangeTypes']
     LOGGER.debug('Monitored change types from config: %s',
                  monitored_change_types)
     stateful_resources = set(config['StatefulResources'])
     LOGGER.debug('Stateful resources from config: %s', stateful_resources)
     if args.list:
-        cfnsafe.core.show_stateful_resources(stateful_resources)
+        cfnsafeset.core.show_stateful_resources(stateful_resources)
         return 0
     if args.file:
-        changes = cfnsafe.core.load_cs_file(args.file)
+        changes = cfnsafeset.core.load_cs_file(args.file)
     else:
-        changes = cfnsafe.core.get_change_set(
+        changes = cfnsafeset.core.get_change_set(
             args.changeset, args.stack, args.region)
-    if cfnsafe.core.detect_stateful_replace(changes, monitored_change_types, stateful_resources):
+    if cfnsafeset.core.detect_stateful_replace(changes, monitored_change_types, stateful_resources):
         return 2
     return 0
 

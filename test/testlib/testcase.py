@@ -15,7 +15,7 @@
   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 from unittest import TestCase
-import cfnsafe.core
+import cfnsafeset.core
 
 
 class BaseTestCase(TestCase):
@@ -28,4 +28,4 @@ class BaseTestCase(TestCase):
 
     def load_change_set(self, filename):
         """Return template"""
-        return cfnsafe.core.load_cs_file(filename)
+        return cfnsafeset.core.load_cs_file(filename)

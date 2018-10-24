@@ -1,4 +1,4 @@
-# Change Types and Stateful Resources monitored by cfn-safe
+# Change Types and Stateful Resources monitored by cfn-safeset
 ChangeTypes:
     'Resource' : 'ResourceChange'
 
