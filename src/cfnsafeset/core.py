@@ -76,7 +76,7 @@ def create_parser():
         '-s', '--stack', metavar='STACKNAME',
         help='The stack name associated with this change set')
     standard.add_argument(
-        '-f', '--file', metavar='STACKNAME',
+        '-f', '--file', metavar='FILENAME',
         help='File containing a valid CloudFormation change set')
     standard.add_argument(
         '-r', '--region', metavar='REGION', default='us-east-1',
