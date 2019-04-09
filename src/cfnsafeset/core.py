@@ -101,7 +101,7 @@ def get_args():
     init_logger(args.debug)
 
     if (not args.changeset and not args.stack) and not args.file:
-        LOGGER.error('%s: You must specify a valid change set and stack name (-c/-s)'
+        LOGGER.error('%s: You must specify a valid change set and stack name (-c/-s) '
                      'or file location (-f)',
                      os.path.basename(sys.argv[0]))
         sys.exit(1)
@@ -191,7 +191,7 @@ def detect_stateful_replace(changes, monitored_change_types, stateful_resources)
                     properties = stateful_replace_properties(
                         change[monitored_change_types[change['Type']]])
                     LOGGER.warning(
-                        'Replace required for stateful resource %s (%s)'
+                        'Replace required for stateful resource %s (%s) '
                         'due to changes to these properties: %s',
                         change['ResourceChange']['LogicalResourceId'],
                         change['ResourceChange']['ResourceType'],
