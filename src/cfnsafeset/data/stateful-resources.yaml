@@ -3,9 +3,14 @@ ChangeTypes:
     'Resource' : 'ResourceChange'
 
 StatefulResources:
+  - AWS::Cognito::UserPool
+  - AWS::DynamoDB::Table
+  - AWS::EC2::Instance  
+  - AWS::EC2::Volume
+  - AWS::ECS::Cluster
+  - AWS::ElastiCache::CacheCluster
+  - AWS::ElastiCache::ReplicationGroup
+  - AWS::Neptune::DBCluster
   - AWS::RDS::DBCluster
   - AWS::RDS::DBInstance
-  - AWS::DynamoDB::Table
-  - AWS::Cognito::UserPool
-  - AWS::ECS::Cluster
-  - AWS::EC2::Instance  
+  - AWS::Redshift::Cluster

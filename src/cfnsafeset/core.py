@@ -181,6 +181,11 @@ def is_stateful(change, stateful_resources):
     return change['ResourceType'] in stateful_resources
 
 
+def is_remove(change):
+    """ Boolean check if current change references a stateful resource """
+    return change['Action'] == 'Remove'
+
+
 def is_replace(change):
     """ Boolean check if current change references a stateful resource """
     return change['Replacement'] == 'True'
@@ -199,7 +204,15 @@ def detect_stateful_replace(changes, monitored_change_types, stateful_resources)
                 LOGGER.info('Stateful resource detected: %s (%s)',
                             change['ResourceChange']['LogicalResourceId'],
                             change['ResourceChange']['ResourceType'])
-                if is_replace(
+                if is_remove(
+                        change[monitored_change_types[change['Type']]]):
+                    LOGGER.warning(
+                        'Stateful resource %s (%s) will be removed '
+                        'due to template changes',
+                        change['ResourceChange']['LogicalResourceId'],
+                        change['ResourceChange']['ResourceType']
+                    )
+                elif is_replace(
                         change[monitored_change_types[change['Type']]]):
                     properties = stateful_replace_properties(
                         change[monitored_change_types[change['Type']]])
