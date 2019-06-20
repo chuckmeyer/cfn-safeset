@@ -29,13 +29,15 @@ from cfnsafeset.version import __version__
 LOGGER = logging.getLogger('cfnsafeset')
 
 
-def init_logger(use_debug):
+def init_logger(use_info, use_debug):
     """ Set log level and format """
     handler = logging.StreamHandler()
     handler.setLevel(logging.DEBUG)
 
     if use_debug:
         LOGGER.setLevel(logging.DEBUG)
+    elif use_info:
+        LOGGER.setLevel(logging.INFO)
     else:
         LOGGER.setLevel(logging.WARNING)
 
@@ -88,9 +90,11 @@ def create_parser():
         '-v', '--version', help='Version of cfn-safeset', action='version',
         version='%(prog)s {version}'.format(version=__version__))
     advanced.add_argument(
+        '-i', '--info', help='Enable info logging', action='store_true')
+    advanced.add_argument(
         '-d', '--debug', help='Enable debug logging', action='store_true')
     advanced.add_argument(
-        '-l', '--list', help='List stateful resources', action='store_true')
+        '-l', '--list', help='List resources considered stateful', action='store_true')
     return parser
 
 
@@ -101,7 +105,7 @@ def get_args():
     if args.list:
         return args
 
-    init_logger(args.debug)
+    init_logger(args.info, args.debug)
 
     if (not args.changeset and not args.stack) and not args.file:
         LOGGER.error('%s: You must specify a valid change set and stack name (-c/-s) '
@@ -167,7 +171,7 @@ def load_cs_file(filename):
 
 def show_stateful_resources(stateful_resources):
     """ List stateful resources defined in resource data """
-    print('List of stateful resources:')
+    print('List of stateful resource types:')
     for resource in stateful_resources:
         print(' * %s' % resource)
 
