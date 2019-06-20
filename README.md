@@ -16,13 +16,14 @@ Standard:
                         The CloudFormation change set to be evaluated
   -s STACKNAME, --stack STACKNAME
                         The stack name associated with this change set
-  -f STACKNAME, --file FILENAME
+  -f FILENAME, --file FILENAME
                         File containing a valid CloudFormation change set
   -r REGION, --region REGION
                         The region where this change set exists
   -v, --version         Version of cfn-safeset
 
 Advanced / Debugging:
+  -i, --info            Enable info logging
   -d, --debug           Enable debug logging
-  -l, --list            List stateful resources
+  -l, --list            List resources considered stateful
 ```
