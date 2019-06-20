@@ -1,5 +1,6 @@
 # cfn-safeset
-Scan CloudFormation ChangeSets for replacement actions on stateful resources
+
+Scan CloudFormation ChangeSets for actions that impact stateful resources. You scan either a live changeset via API or as an exported flat file.
 
 ```
 cfn-safeset -h

@@ -194,6 +194,7 @@ def is_replace(change):
 def detect_stateful_replace(changes, monitored_change_types, stateful_resources):
     """ Iterate through changes and look for stateful resources with replace actions """
     stateful_replace = False
+    stateful_remove = False
     for change in changes:
         if change['Type'] in monitored_change_types:
             LOGGER.debug('Monitored resource type: %s', change['Type'])
@@ -210,8 +211,8 @@ def detect_stateful_replace(changes, monitored_change_types, stateful_resources)
                         'Stateful resource %s (%s) will be removed '
                         'due to template changes',
                         change['ResourceChange']['LogicalResourceId'],
-                        change['ResourceChange']['ResourceType']
-                    )
+                        change['ResourceChange']['ResourceType'])
+                    stateful_remove = True
                 elif is_replace(
                         change[monitored_change_types[change['Type']]]):
                     properties = stateful_replace_properties(
@@ -229,7 +230,7 @@ def detect_stateful_replace(changes, monitored_change_types, stateful_resources)
                 LOGGER.info('Non-stateful resource skipped: %s (%s)',
                             change['ResourceChange']['LogicalResourceId'],
                             change['ResourceChange']['ResourceType'])
-    return stateful_replace
+    return stateful_replace or stateful_remove
 
 
 def stateful_replace_properties(change):
