@@ -21,7 +21,7 @@ import sys
 import os
 import json
 import pkg_resources
-from boto3 import client
+from boto3 import client, Session
 from botocore.exceptions import ClientError
 import yaml
 from cfnsafeset.version import __version__
@@ -40,7 +40,7 @@ def init_logger(use_debug):
         LOGGER.setLevel(logging.WARNING)
 
     formatter = logging.Formatter('%(levelname)-8s %(message)s')
-        #    '%(asctime)s %(levelname)-8s %(message)s')
+    #    '%(asctime)s %(levelname)-8s %(message)s')
     handler.setFormatter(formatter)
     # make sure all other log handlers are removed before adding it back
     for handler in LOGGER.handlers:
@@ -57,7 +57,7 @@ def init_config(config_file):
     )
 
     with open(filename) as ymlfile:
-        cfg = yaml.load(ymlfile)
+        cfg = yaml.safe_load(ymlfile)
     return cfg
 
 
@@ -81,6 +81,9 @@ def create_parser():
     standard.add_argument(
         '-r', '--region', metavar='REGION', default='us-east-1',
         help='The region where this change set exists')
+    standard.add_argument(
+        '-p', '--profile', metavar='PROFILE',
+        help='The profile to use for authentication')
     standard.add_argument(
         '-v', '--version', help='Version of cfn-safeset', action='version',
         version='%(prog)s {version}'.format(version=__version__))
@@ -108,12 +111,18 @@ def get_args():
     return args
 
 
-def get_change_set(change_set, stack, region):
+def get_change_set(change_set, stack, region, profile):
     """ Retrieve change set data via API """
     LOGGER.debug('Retrieving change set %s for stack %s in region %s',
                  change_set, stack, region)
     try:
-        cf_client = client('cloudformation', region_name=region)
+        if profile:
+            session = Session(profile_name=profile)
+            cf_client = session.client(
+                'cloudformation', region_name=region)
+        else:
+            cf_client = client('cloudformation', region_name=region)
+
         response = cf_client.describe_change_set(
             ChangeSetName=change_set,
             StackName=stack
@@ -150,7 +159,7 @@ def load_cs_file(filename):
             LOGGER.error(
                 'Permission denied when accessing change set file: %s', filename)
         sys.exit(1)
-    except Exception as json_err: # pylint: disable=W0703
+    except Exception as json_err:  # pylint: disable=W0703
         LOGGER.error(
             'Tried to parse %s as JSON but got error: %s', filename, str(json_err))
         sys.exit(1)
@@ -197,6 +206,8 @@ def detect_stateful_replace(changes, monitored_change_types, stateful_resources)
                         change['ResourceChange']['ResourceType'],
                         list(properties))
                     stateful_replace = True
+                else:
+                    LOGGER.info('Change does not require replacement')
             else:
                 LOGGER.info('Non-stateful resource skipped: %s (%s)',
                             change['ResourceChange']['LogicalResourceId'],

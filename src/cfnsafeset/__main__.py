@@ -38,7 +38,7 @@ def main():
         changes = cfnsafeset.core.load_cs_file(args.file)
     else:
         changes = cfnsafeset.core.get_change_set(
-            args.changeset, args.stack, args.region)
+            args.changeset, args.stack, args.region, args.profile)
     if cfnsafeset.core.detect_stateful_replace(changes, monitored_change_types, stateful_resources):
         return 2
     return 0
